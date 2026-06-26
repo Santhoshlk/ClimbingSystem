@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
+#include "ClimbingSystemDebugHelper.h"
 
 AClimbingSystemCharacter::AClimbingSystemCharacter()
 {
@@ -65,11 +66,20 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AClimbingSystemCharacter::Look);
+
+		//climbing
+		EnhancedInputComponent->BindAction(ToggleClimbAction,ETriggerEvent::Started,this,&AClimbingSystemCharacter::OnClimbStarted);
 	}
 	else
 	{
 		UE_LOG(LogClimbingSystem, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+}
+
+void AClimbingSystemCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	Debug::PrintDebugMessage(TEXT("Debug"));
 }
 
 void AClimbingSystemCharacter::Move(const FInputActionValue& Value)
@@ -89,6 +99,13 @@ void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
 	// route the input
 	DoLook(LookAxisVector.X, LookAxisVector.Y);
 }
+
+void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
+{
+	Debug::PrintDebugMessage(TEXT("Climb Started"));
+}
+
+
 
 void AClimbingSystemCharacter::DoMove(float Right, float Forward)
 {
