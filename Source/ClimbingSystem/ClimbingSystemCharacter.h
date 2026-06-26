@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "ClimbingSystemCharacter.generated.h"
 
+class UClimbingMovementComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
@@ -26,16 +27,24 @@ class AClimbingSystemCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+
+protected:
+
+#pragma region Components
+
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* FollowCamera;
-	
-protected:
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Components")
+	TObjectPtr<UClimbingMovementComponent> ClimbingMovementComponent;
+ #pragma endregion 
+
+	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -57,7 +66,7 @@ protected:
 public:
 
 	/** Constructor */
-	AClimbingSystemCharacter();	
+	AClimbingSystemCharacter(const FObjectInitializer& ObjectInitializer);	
 
 protected:
 

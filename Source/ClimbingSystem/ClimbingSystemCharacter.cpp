@@ -4,7 +4,6 @@
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
@@ -12,8 +11,10 @@
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
 #include "ClimbingSystemDebugHelper.h"
+#include "Components/ClimbingMovementComponent.h"
 
-AClimbingSystemCharacter::AClimbingSystemCharacter()
+AClimbingSystemCharacter::AClimbingSystemCharacter(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer.SetDefaultSubobjectClass<UClimbingMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -23,6 +24,7 @@ AClimbingSystemCharacter::AClimbingSystemCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	ClimbingMovementComponent = Cast<UClimbingMovementComponent>(GetCharacterMovement());
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
