@@ -15,8 +15,8 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	GENERATED_BODY()
 
 #pragma region Climb Traces
-   TArray<FHitResult> CapsuleTraceMultiForObjects(const FVector& Start , const FVector& End , bool DrawDebugTypes);
-	
+   TArray<FHitResult> CapsuleTraceMultiForObjects(const FVector& Start , const FVector& End , bool bDrawDebugTypes);
+	FHitResult EyeLengthLineTraceSingle(const FVector& Start,const FVector& End , bool bDrawDebugTypes );
 #pragma endregion
 
 #pragma region Climb Trace Variables 
@@ -32,6 +32,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 #pragma region Climb Trace Detection Logic
 	void ClimbableSurfaceDetection();
+	void EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
 #pragma endregion
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
