@@ -14,11 +14,12 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 {
 	GENERATED_BODY()
 
-#pragma region Traces
+#pragma region Climb Traces
    TArray<FHitResult> CapsuleTraceMultiForObjects(const FVector& Start , const FVector& End , bool DrawDebugTypes);
 	
 #pragma endregion
 
+#pragma region Climb Trace Variables 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float CapsuleTraceRadius = 50.f;
 	
@@ -27,5 +28,11 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	TArray<TEnumAsByte<EObjectTypeQuery> > ObjectTypes;
-	 
+#pragma endregion
+
+#pragma region Climb Trace Detection Logic
+	void ClimbableSurfaceDetection();
+#pragma endregion
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

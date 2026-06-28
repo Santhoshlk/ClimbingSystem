@@ -2,7 +2,6 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-
 #include "Kismet/KismetSystemLibrary.h"
 
 TArray<FHitResult> UClimbingMovementComponent::CapsuleTraceMultiForObjects(const FVector& Start, const FVector& End,bool DrawDebugTypes)
@@ -23,4 +22,18 @@ TArray<FHitResult> UClimbingMovementComponent::CapsuleTraceMultiForObjects(const
 		true
 		);
 	return OutCapsuleTraceHitResult;
+}
+
+void UClimbingMovementComponent::ClimbableSurfaceDetection()
+{
+   const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()*25.f;
+	const FVector End =Start+UpdatedComponent->GetForwardVector();
+	CapsuleTraceMultiForObjects(Start,End,true);
+}
+
+void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	ClimbableSurfaceDetection();
 }
