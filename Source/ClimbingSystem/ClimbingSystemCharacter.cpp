@@ -81,7 +81,7 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 void AClimbingSystemCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Debug::PrintDebugMessage(TEXT("Debug"));
+	
 }
 
 void AClimbingSystemCharacter::Move(const FInputActionValue& Value)
@@ -104,7 +104,17 @@ void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
 
 void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
 {
-	Debug::PrintDebugMessage(TEXT("Climb Started"));
+	checkf(ClimbingMovementComponent,TEXT("Climbing Movement component should be valid"))
+
+	if (ClimbingMovementComponent->AmIClimbing())
+	{
+		ClimbingMovementComponent->ToggleClimbingState(false);
+	}
+	else
+	{
+		ClimbingMovementComponent->ToggleClimbingState(true);
+	}
+	
 }
 
 

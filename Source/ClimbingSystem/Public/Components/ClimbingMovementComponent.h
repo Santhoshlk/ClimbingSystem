@@ -9,6 +9,17 @@
 /**
  * 
  */
+// old definition of enum
+UENUM(BlueprintType)
+namespace ECustomMovementMode
+{
+	enum Type
+	{
+		MOVE_Climb UMETA(DisplayName = "Climb Mode")
+	};
+}
+
+
 UCLASS()
 class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementComponent
 {
@@ -19,7 +30,13 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	FHitResult EyeLengthLineTraceSingle(const FVector& Start,const FVector& End , bool bDrawDebugTypes );
 #pragma endregion
 
-#pragma region Climb Trace Variables 
+#pragma region Climb Core
+
+#pragma endregion
+  FHitResult LineTraceHitResult;
+  TArray<FHitResult> CapsuleTraceHitResult;
+	
+#pragma region Climb Trace BP Variables 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float CapsuleTraceRadius = 50.f;
 	
@@ -31,9 +48,14 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 #pragma endregion
 
 #pragma region Climb Trace Detection Logic
-	void ClimbableSurfaceDetection();
-	void EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
+	bool ClimbableSurfaceDetection();
+	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
 #pragma endregion
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+	bool AmIClimbing() const;
+	bool IsClimbingPossible();
+
+	void ToggleClimbingState(bool bCanClimb);
 };
