@@ -78,7 +78,7 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	}
 	else
 	{
-		// TODO::Disable Climbing State
+		// To do next 
 	}
 }
 
