@@ -2,6 +2,8 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
+
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -69,7 +71,6 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 		if (IsClimbingPossible())
 		{
 			
-			
 		   SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
 		}
 		else
@@ -79,8 +80,7 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	}
 	else
 	{
-		
-		SetMovementMode(MOVE_Falling);
+		SetMovementMode(MOVE_Walking);
 	}
 }
 
@@ -90,6 +90,7 @@ bool UClimbingMovementComponent::ClimbableSurfaceDetection()
 	const FVector End =Start+UpdatedComponent->GetForwardVector();
 	CapsuleTraceHitResult = CapsuleTraceMultiForObjects(Start,End,true);
 	return !CapsuleTraceHitResult.IsEmpty();
+	
 }
 
 bool UClimbingMovementComponent::EyeLevelSurfaceDetection(float TraceDistance, float TraceOffset)
@@ -110,17 +111,19 @@ void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
 {
 	// this gets called every time a movement mode changes by taking previous ones 
-    if (IsClimbingPossible())
+    if (AmIClimbing())
     {
 	    bOrientRotationToMovement = false;
     	
     	CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(48.f);
     }
-	if (PreviousMovementMode == MOVE_Custom && PreviousMovementMode == ECustomMovementMode::MOVE_Climb)
+	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == ECustomMovementMode::MOVE_Climb)
 	{
-		bOrientRotationToMovement = true;
 		
+		bOrientRotationToMovement = true;
 		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
+		// this function stops u form doing any form of movement
+		StopMovementImmediately();	
 	}
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 }

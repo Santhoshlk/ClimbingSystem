@@ -106,6 +106,7 @@ void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
 {
 	checkf(ClimbingMovementComponent,TEXT("Climbing Movement component should be valid"))
 
+	
 	if (ClimbingMovementComponent->AmIClimbing())
 	{
 		ClimbingMovementComponent->ToggleClimbingState(false);
