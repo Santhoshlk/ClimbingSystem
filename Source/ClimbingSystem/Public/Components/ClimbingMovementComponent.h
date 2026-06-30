@@ -51,11 +51,14 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	bool ClimbableSurfaceDetection();
 	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
 #pragma endregion
-
+protected:
+	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
 
 	void ToggleClimbingState(bool bCanClimb);
+	
 };

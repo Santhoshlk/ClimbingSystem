@@ -2,8 +2,7 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-
-#include "ClimbingSystemDebugHelper.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -69,16 +68,19 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	{
 		if (IsClimbingPossible())
 		{
-			Debug::PrintDebugMessage(TEXT("Climbing is Possible"));
+			
+			
+		   SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
 		}
 		else
 		{
-			Debug::PrintDebugMessage(TEXT("Climbing is Not  Possible"));
+			
 		}
 	}
 	else
 	{
-		// To do next 
+		
+		SetMovementMode(MOVE_Falling);
 	}
 }
 
@@ -103,4 +105,22 @@ void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
+}
+
+void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+	// this gets called every time a movement mode changes by taking previous ones 
+    if (IsClimbingPossible())
+    {
+	    bOrientRotationToMovement = false;
+    	
+    	CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(48.f);
+    }
+	if (PreviousMovementMode == MOVE_Custom && PreviousMovementMode == ECustomMovementMode::MOVE_Climb)
+	{
+		bOrientRotationToMovement = true;
+		
+		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
+	}
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 }
