@@ -2,6 +2,8 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
+
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -84,10 +86,19 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 
 void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 {
+   // this function runs just as tick
+	
 	if (deltaTime < MIN_TICK_TIME)
 	{
 		return;
 	}
+
+	// Trace for climbable surfaces
+	 ClimbableSurfaceDetection();
+	 // process climbable surfaces
+	ProcessingClimbableSurfaces();
+	
+	 // if none return early
 
 	RestorePreAdditiveRootMotionVelocity();
 
@@ -117,13 +128,16 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	{
 		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
 	}
+
+	Debug::PrintDebugMessage(TEXT("Climbable Surface Location :") + ClimbableSurfaceLocation.ToString());
+	Debug::PrintDebugMessage(TEXT("Climbable Surface Normal :") + ClimbableSurfaceNormal.ToString());
 }
 
 bool UClimbingMovementComponent::ClimbableSurfaceDetection()
 {
    const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()*25.f;
 	const FVector End =Start+UpdatedComponent->GetForwardVector();
-	CapsuleTraceHitResult = CapsuleTraceMultiForObjects(Start,End,true);
+	CapsuleTraceHitResult = CapsuleTraceMultiForObjects(Start,End,false);
 	return !CapsuleTraceHitResult.IsEmpty();
 	
 }
@@ -132,8 +146,25 @@ bool UClimbingMovementComponent::EyeLevelSurfaceDetection(float TraceDistance, f
 {
 	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +TraceOffset );
 	const FVector End  = Start+UpdatedComponent->GetForwardVector()*TraceDistance;
-	 LineTraceHitResult =  EyeLengthLineTraceSingle(Start,End,true);
+	 LineTraceHitResult =  EyeLengthLineTraceSingle(Start,End,false);
 	return LineTraceHitResult.bBlockingHit;
+}
+
+void UClimbingMovementComponent::ProcessingClimbableSurfaces()
+{
+	 ClimbableSurfaceLocation = FVector::ZeroVector;
+	 ClimbableSurfaceNormal = FVector::ZeroVector;
+	if (CapsuleTraceHitResult.IsEmpty())
+	{
+		return;
+	}
+	for (const auto& TraceHitResult : CapsuleTraceHitResult)
+	{
+		ClimbableSurfaceLocation += TraceHitResult.ImpactPoint;
+		ClimbableSurfaceNormal += TraceHitResult.ImpactNormal;
+	}
+	 ClimbableSurfaceLocation/=CapsuleTraceHitResult.Num();
+	 ClimbableSurfaceNormal = ClimbableSurfaceNormal.GetSafeNormal();
 }
 
 void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,

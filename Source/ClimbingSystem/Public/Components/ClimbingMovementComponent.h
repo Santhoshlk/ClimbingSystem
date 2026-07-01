@@ -35,6 +35,8 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 #pragma endregion
   FHitResult LineTraceHitResult;
   TArray<FHitResult> CapsuleTraceHitResult;
+	FVector ClimbableSurfaceLocation = FVector::ZeroVector;
+	FVector ClimbableSurfaceNormal = FVector::ZeroVector;
 	
 #pragma region Climb Trace BP Variables 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
@@ -53,6 +55,8 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 #pragma region Climb Trace Detection Logic
 	bool ClimbableSurfaceDetection();
 	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
+
+	void ProcessingClimbableSurfaces();
 #pragma endregion
 protected:
 	
