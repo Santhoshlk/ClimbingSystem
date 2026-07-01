@@ -2,8 +2,6 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-
-#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -75,7 +73,8 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 		}
 		else
 		{
-			
+			// temporary
+			SetMovementMode(MOVE_Walking);
 		}
 	}
 	else
@@ -114,7 +113,7 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	FVector OldLocation = UpdatedComponent->GetComponentLocation();
 	const FVector Adjusted = Velocity * deltaTime;
 	FHitResult Hit(1.f);
-	SafeMoveUpdatedComponent(Adjusted, UpdatedComponent->GetComponentQuat(), true, Hit);
+	SafeMoveUpdatedComponent(Adjusted, SetClimbRotation(deltaTime), true, Hit);
 
 	if (Hit.Time < 1.f)
 	{
@@ -129,8 +128,7 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
 	}
 
-	Debug::PrintDebugMessage(TEXT("Climbable Surface Location :") + ClimbableSurfaceLocation.ToString());
-	Debug::PrintDebugMessage(TEXT("Climbable Surface Normal :") + ClimbableSurfaceNormal.ToString());
+	SnapToSurfaces();
 }
 
 bool UClimbingMovementComponent::ClimbableSurfaceDetection()
@@ -167,6 +165,35 @@ void UClimbingMovementComponent::ProcessingClimbableSurfaces()
 	 ClimbableSurfaceNormal = ClimbableSurfaceNormal.GetSafeNormal();
 }
 
+FQuat UClimbingMovementComponent::SetClimbRotation(float deltaTime) const 
+{
+	// check if root motion is running the animation
+	if (HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity())
+	{
+		return UpdatedComponent->GetComponentQuat();
+	}
+
+	// next is u do interpolation
+	// u need to set a target quad make it toward the one  u need to rotate
+	 const FQuat TargetQuat = FRotationMatrix::MakeFromX(-ClimbableSurfaceNormal).ToQuat();
+	return FMath::QInterpTo(UpdatedComponent->GetComponentQuat(),TargetQuat,deltaTime,5.f);
+}
+
+void UClimbingMovementComponent::SnapToSurfaces()
+{
+	// u need to move towards the wall
+	// so u need distance
+	// first vector from character to component
+	const FVector ComponentToSurface = (ClimbableSurfaceNormal - UpdatedComponent->GetComponentLocation()).ProjectOnTo(UpdatedComponent->GetForwardVector());
+	const FVector SnapVector = (-ClimbableSurfaceNormal)*ComponentToSurface.Length();
+	UpdatedComponent->MoveComponent(
+    SnapVector,
+    UpdatedComponent->GetComponentQuat(),
+    true
+	);
+	
+}
+
 void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
                                                FActorComponentTickFunction* ThisTickFunction)
 {
@@ -201,4 +228,24 @@ void UClimbingMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
 		PhysicsClimb(deltaTime,Iterations);
 	}
 	Super::PhysCustom(deltaTime, Iterations);
+}
+
+float UClimbingMovementComponent::GetMaxSpeed() const
+{
+	if (AmIClimbing())
+	{
+		// as you are climbing return ur set speed
+		return MaxClimbSpeed;
+	}
+	return Super::GetMaxSpeed();
+}
+
+float UClimbingMovementComponent::GetMaxAcceleration() const
+{
+	if (AmIClimbing())
+	{
+		// as you are climbing return ur set acceleration
+		return MaxClimbAcceleration;
+	}
+	return Super::GetMaxAcceleration();
 }

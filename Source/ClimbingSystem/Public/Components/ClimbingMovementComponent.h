@@ -50,13 +50,23 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float MaxBreakingDeceleration = 500.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
+	float MaxClimbSpeed = 100.f;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
+	float MaxClimbAcceleration = 400.f;
 #pragma endregion
 
-#pragma region Climb Trace Detection Logic
+#pragma region Climb Functions
 	bool ClimbableSurfaceDetection();
 	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
 
 	void ProcessingClimbableSurfaces();
+
+	FQuat SetClimbRotation(float deltaTime) const;
+
+	// this is a function that needs tick
+	void SnapToSurfaces();
 #pragma endregion
 protected:
 	
@@ -64,6 +74,9 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+
+	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxAcceleration() const;
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
