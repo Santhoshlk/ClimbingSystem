@@ -45,6 +45,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	TArray<TEnumAsByte<EObjectTypeQuery> > ObjectTypes;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
+	float MaxBreakingDeceleration = 500.f;
 #pragma endregion
 
 #pragma region Climb Trace Detection Logic
@@ -55,10 +58,13 @@ protected:
 	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
 
 	void ToggleClimbingState(bool bCanClimb);
-	
+
+	void PhysicsClimb(float deltaTime, int32 Iterations);
 };

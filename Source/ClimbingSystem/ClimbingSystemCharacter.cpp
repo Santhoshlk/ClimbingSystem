@@ -10,7 +10,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
-#include "ClimbingSystemDebugHelper.h"
 #include "Components/ClimbingMovementComponent.h"
 
 AClimbingSystemCharacter::AClimbingSystemCharacter(const FObjectInitializer& ObjectInitializer)

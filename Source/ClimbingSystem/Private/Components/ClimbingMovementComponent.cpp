@@ -2,8 +2,6 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-
-#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -84,6 +82,43 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	}
 }
 
+void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
+{
+	if (deltaTime < MIN_TICK_TIME)
+	{
+		return;
+	}
+
+	RestorePreAdditiveRootMotionVelocity();
+
+	if( !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
+	{
+;
+		CalcVelocity(deltaTime, 0.f, true, MaxBreakingDeceleration);
+	}
+
+	ApplyRootMotionToVelocity(deltaTime);
+
+
+	FVector OldLocation = UpdatedComponent->GetComponentLocation();
+	const FVector Adjusted = Velocity * deltaTime;
+	FHitResult Hit(1.f);
+	SafeMoveUpdatedComponent(Adjusted, UpdatedComponent->GetComponentQuat(), true, Hit);
+
+	if (Hit.Time < 1.f)
+	{
+		//adjust and try again
+		HandleImpact(Hit, deltaTime, Adjusted);
+		SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
+		
+	}
+
+	if( !bJustTeleported && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
+	{
+		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
+	}
+}
+
 bool UClimbingMovementComponent::ClimbableSurfaceDetection()
 {
    const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()*25.f;
@@ -126,4 +161,13 @@ void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMov
 		StopMovementImmediately();	
 	}
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+}
+
+void UClimbingMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
+{
+	if (AmIClimbing())
+	{
+		PhysicsClimb(deltaTime,Iterations);
+	}
+	Super::PhysCustom(deltaTime, Iterations);
 }
