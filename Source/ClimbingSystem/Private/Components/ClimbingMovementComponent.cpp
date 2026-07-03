@@ -128,7 +128,7 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
 	}
 
-	SnapToSurfaces();
+	SnapToSurfaces(deltaTime);
 }
 
 bool UClimbingMovementComponent::ClimbableSurfaceDetection()
@@ -179,7 +179,7 @@ FQuat UClimbingMovementComponent::SetClimbRotation(float deltaTime) const
 	return FMath::QInterpTo(UpdatedComponent->GetComponentQuat(),TargetQuat,deltaTime,5.f);
 }
 
-void UClimbingMovementComponent::SnapToSurfaces()
+void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
 {
 	// u need to move towards the wall
 	// so u need distance
@@ -187,7 +187,7 @@ void UClimbingMovementComponent::SnapToSurfaces()
 	const FVector ComponentToSurface = (ClimbableSurfaceNormal - UpdatedComponent->GetComponentLocation()).ProjectOnTo(UpdatedComponent->GetForwardVector());
 	const FVector SnapVector = (-ClimbableSurfaceNormal)*ComponentToSurface.Length();
 	UpdatedComponent->MoveComponent(
-    SnapVector,
+    SnapVector*DeltaTime* MaxClimbSpeed,
     UpdatedComponent->GetComponentQuat(),
     true
 	);
@@ -216,6 +216,9 @@ void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMov
 		bOrientRotationToMovement = true;
 		CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
 		// this function stops u form doing any form of movement
+		const FRotator DirtyRotation = UpdatedComponent->GetComponentRotation();
+		const FRotator CleanRotation = FRotator(0.f,DirtyRotation.Yaw,0.f);
+		UpdatedComponent->SetRelativeRotation(CleanRotation);
 		StopMovementImmediately();	
 	}
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);

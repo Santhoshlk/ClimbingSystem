@@ -66,7 +66,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	FQuat SetClimbRotation(float deltaTime) const;
 
 	// this is a function that needs tick
-	void SnapToSurfaces();
+	void SnapToSurfaces(float DeltaTime);
 #pragma endregion
 protected:
 	
@@ -84,4 +84,6 @@ public:
 	void ToggleClimbingState(bool bCanClimb);
 
 	void PhysicsClimb(float deltaTime, int32 Iterations);
+
+	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return ClimbableSurfaceNormal;};
 };

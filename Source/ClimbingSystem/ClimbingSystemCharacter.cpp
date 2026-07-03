@@ -86,10 +86,34 @@ void AClimbingSystemCharacter::BeginPlay()
 void AClimbingSystemCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	if (!ClimbingMovementComponent) return;
+	if (!ClimbingMovementComponent->AmIClimbing())
+	{
+		MoveGround(Value);
+	}
+	else
+	{
+		MoveClimbing(Value);
+	}
+}
 
-	// route the input
+void AClimbingSystemCharacter::MoveGround(const FInputActionValue& Value)
+{
+	const 	FVector2D MovementVector = Value.Get<FVector2D>();
 	DoMove(MovementVector.X, MovementVector.Y);
+}
+
+void AClimbingSystemCharacter::MoveClimbing(const FInputActionValue& Value)
+{
+	const FVector2D MovementInput = Value.Get<FVector2D>();
+
+	// to use add Movement Input we need direction use cross product
+	const FVector ForwardVector = FVector::CrossProduct(-ClimbingMovementComponent->GetClimbableSurfaceNormal(),GetActorRightVector());
+	const FVector RightVector = FVector::CrossProduct(-ClimbingMovementComponent->GetClimbableSurfaceNormal(),-GetActorUpVector());
+
+	// now Add the Movement Input
+     AddMovementInput(ForwardVector,MovementInput.Y);
+	AddMovementInput(RightVector,MovementInput.X);
 }
 
 void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
@@ -103,7 +127,7 @@ void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
 
 void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
 {
-	checkf(ClimbingMovementComponent,TEXT("Climbing Movement component should be valid"))
+	if (!ClimbingMovementComponent) return;
 
 	
 	if (ClimbingMovementComponent->AmIClimbing())
@@ -116,6 +140,7 @@ void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
 	}
 	
 }
+
 
 
 

@@ -85,7 +85,8 @@ private:
 
 	void OnClimbStarted(const FInputActionValue& Value);
 	
-
+    void MoveGround(const FInputActionValue & Value);
+	void MoveClimbing(const FInputActionValue& Value);
 public:
 
 	/** Handles move inputs from either controls or UI interfaces */
