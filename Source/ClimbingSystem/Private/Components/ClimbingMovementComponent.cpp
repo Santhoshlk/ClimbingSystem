@@ -2,6 +2,8 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
+
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -79,7 +81,7 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	}
 	else
 	{
-		SetMovementMode(MOVE_Walking);
+		SetMovementMode(MOVE_Falling);
 	}
 }
 
@@ -98,6 +100,10 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	ProcessingClimbableSurfaces();
 	
 	 // if none return early
+	if (ShouldIStopClimbing())
+	{
+		 ToggleClimbingState(false);
+	}
 
 	RestorePreAdditiveRootMotionVelocity();
 
@@ -251,4 +257,19 @@ float UClimbingMovementComponent::GetMaxAcceleration() const
 		return MaxClimbAcceleration;
 	}
 	return Super::GetMaxAcceleration();
+}
+
+bool UClimbingMovementComponent::ShouldIStopClimbing()
+{
+	if (CapsuleTraceHitResult.IsEmpty()) return true;
+	const float DotProductResult = FVector::DotProduct(ClimbableSurfaceNormal,FVector::UpVector);
+	const float DegreeAngle = FMath::RadiansToDegrees(FMath::Acos(DotProductResult));
+
+	Debug::PrintDebugData(TEXT("Degrees : "),DegreeAngle);
+	if (DegreeAngle<=45.f)
+	{
+		return true;
+	}
+   
+return false;
 }

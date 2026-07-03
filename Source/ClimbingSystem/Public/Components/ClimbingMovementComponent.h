@@ -77,6 +77,7 @@ protected:
 
 	virtual float GetMaxSpeed() const override;
 	virtual float GetMaxAcceleration() const;
+	bool ShouldIStopClimbing();
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();

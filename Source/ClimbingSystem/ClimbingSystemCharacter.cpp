@@ -116,6 +116,8 @@ void AClimbingSystemCharacter::MoveClimbing(const FInputActionValue& Value)
 	AddMovementInput(RightVector,MovementInput.X);
 }
 
+
+
 void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
