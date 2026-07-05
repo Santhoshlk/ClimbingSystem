@@ -2,10 +2,10 @@
 
 
 #include "AnimInstance/MorrowBoneAnimInstance.h"
-
 #include "ClimbingSystemCharacter.h"
 #include "Components/ClimbingMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "KismetAnimationLibrary.h"
 
 void UMorrowBoneAnimInstance::NativeInitializeAnimation()
 {
@@ -26,8 +26,10 @@ void UMorrowBoneAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (!ClimbingSystemCharacter || !ClimbingMovementComponent) return;
 	UpdateGroundSpeed();
 	UpdateAirSpeed();
-	UpdatebShouldIMove();
 	UpdateIsFalling();
+	UpdatebShouldIMove();
+	UpdateLocomotionDirection();
+	
 }
 
 void UMorrowBoneAnimInstance::UpdateGroundSpeed()
@@ -42,9 +44,11 @@ void UMorrowBoneAnimInstance::UpdateAirSpeed()
 
 void UMorrowBoneAnimInstance::UpdatebShouldIMove()
 {
-	if (ClimbingMovementComponent->GetCurrentAcceleration().Length() > 0 &&  GroundSpeed>5.f && !bIsFalling  )
+	
+	if ( GroundSpeed>5.f && ClimbingMovementComponent->GetCurrentAcceleration().Length()>0.f && !bIsFalling)
 	{
 		bShouldIMove = true;
+		return;
 	}
 	bShouldIMove = false;
 }
@@ -52,4 +56,8 @@ void UMorrowBoneAnimInstance::UpdatebShouldIMove()
 void UMorrowBoneAnimInstance::UpdateIsFalling()
 {
 	bIsFalling = ClimbingMovementComponent->IsFalling();
+}
+void UMorrowBoneAnimInstance::UpdateLocomotionDirection()
+{
+	LocomotionDirection = UKismetAnimationLibrary::CalculateDirection(ClimbingMovementComponent->Velocity,ClimbingSystemCharacter->GetActorRotation());
 }

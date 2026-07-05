@@ -42,5 +42,12 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Locomotion")
 	bool bIsFalling;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Locomotion")
+	float LocomotionDirection;
+	void UpdateLocomotionDirection();
+
 	void UpdateIsFalling();
 };
+
+
+
