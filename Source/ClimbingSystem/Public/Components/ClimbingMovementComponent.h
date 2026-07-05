@@ -55,6 +55,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	float MaxClimbSpeed = 100.f;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float MaxClimbAcceleration = 400.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
+	float ClimbSlopeMinAngle = 45.f;
 #pragma endregion
 
 #pragma region Climb Functions

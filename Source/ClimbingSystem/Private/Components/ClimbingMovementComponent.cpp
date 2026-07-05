@@ -265,8 +265,8 @@ bool UClimbingMovementComponent::ShouldIStopClimbing()
 	const float DotProductResult = FVector::DotProduct(ClimbableSurfaceNormal,FVector::UpVector);
 	const float DegreeAngle = FMath::RadiansToDegrees(FMath::Acos(DotProductResult));
 
-	Debug::PrintDebugData(TEXT("Degrees : "),DegreeAngle);
-	if (DegreeAngle<=45.f)
+	
+	if (DegreeAngle<=ClimbSlopeMinAngle)
 	{
 		return true;
 	}
