@@ -70,7 +70,7 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 		if (IsClimbingPossible())
 		{
 			
-		   SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+		  
 			// pLay the Montage to start Climb
 			PlayClimbMontage(IdleToClimbMontage);
 		}
@@ -297,5 +297,9 @@ void UClimbingMovementComponent::PlayClimbMontage( UAnimMontage* Montage) const
 
 void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	Debug::PrintDebugMessage(TEXT("Climb Montage Ended"));
+	if (Montage == IdleToClimbMontage)
+	{
+		// once this montage has ende u change the state
+		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+	}
 }

@@ -46,6 +46,12 @@ protected:
 	float LocomotionDirection;
 	void UpdateLocomotionDirection();
 
+	// for permanent state transition logic we  use variables from Anim Instance
+	//which we can then update in AnimBlueprints
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Climb")
+	bool bIsClimbing;
+	void UpdateIsClimbing();
+
 	void UpdateIsFalling();
 };
 

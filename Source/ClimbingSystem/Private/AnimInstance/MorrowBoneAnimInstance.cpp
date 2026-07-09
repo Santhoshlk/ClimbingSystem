@@ -29,6 +29,7 @@ void UMorrowBoneAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	UpdateIsFalling();
 	UpdatebShouldIMove();
 	UpdateLocomotionDirection();
+	UpdateIsClimbing();
 	
 }
 
@@ -53,6 +54,8 @@ void UMorrowBoneAnimInstance::UpdatebShouldIMove()
 	bShouldIMove = false;
 }
 
+
+
 void UMorrowBoneAnimInstance::UpdateIsFalling()
 {
 	bIsFalling = ClimbingMovementComponent->IsFalling();
@@ -60,4 +63,8 @@ void UMorrowBoneAnimInstance::UpdateIsFalling()
 void UMorrowBoneAnimInstance::UpdateLocomotionDirection()
 {
 	LocomotionDirection = UKismetAnimationLibrary::CalculateDirection(ClimbingMovementComponent->Velocity,ClimbingSystemCharacter->GetActorRotation());
+}
+void UMorrowBoneAnimInstance::UpdateIsClimbing()
+{
+	bIsClimbing = ClimbingMovementComponent->AmIClimbing();
 }
