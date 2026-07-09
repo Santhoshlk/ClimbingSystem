@@ -2,7 +2,6 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-
 #include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -72,6 +71,8 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 		{
 			
 		   SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+			// pLay the Montage to start Climb
+			PlayClimbMontage(IdleToClimbMontage);
 		}
 		else
 		{
@@ -200,6 +201,18 @@ void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
 	
 }
 
+void UClimbingMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	CharacterAnimInstance =  CharacterOwner->GetMesh()->GetAnimInstance();
+	if (CharacterAnimInstance)
+	{
+		CharacterAnimInstance->OnMontageEnded.AddDynamic(this,&UClimbingMovementComponent::OnClimbMontageEnded);
+		CharacterAnimInstance->OnMontageBlendingOut.AddDynamic(this,&UClimbingMovementComponent::OnClimbMontageEnded);
+	}
+	
+}
+
 void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
                                                FActorComponentTickFunction* ThisTickFunction)
 {
@@ -272,4 +285,17 @@ bool UClimbingMovementComponent::ShouldIStopClimbing()
 	}
    
 return false;
+}
+
+void UClimbingMovementComponent::PlayClimbMontage( UAnimMontage* Montage) const
+{
+	if (!Montage) return;
+	if (!CharacterAnimInstance) return;
+	if (CharacterAnimInstance->IsAnyMontagePlaying()) return;
+	CharacterAnimInstance->Montage_Play(Montage);
+}
+
+void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	Debug::PrintDebugMessage(TEXT("Climb Montage Ended"));
 }

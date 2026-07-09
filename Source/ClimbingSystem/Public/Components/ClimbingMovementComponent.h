@@ -10,6 +10,9 @@
  * 
  */
 // old definition of enum
+
+class UAnimInstance;
+class UAnimMontage;
 UENUM(BlueprintType)
 namespace ECustomMovementMode
 {
@@ -37,8 +40,10 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
   TArray<FHitResult> CapsuleTraceHitResult;
 	FVector ClimbableSurfaceLocation = FVector::ZeroVector;
 	FVector ClimbableSurfaceNormal = FVector::ZeroVector;
+	UPROPERTY()
+	TObjectPtr<UAnimInstance> CharacterAnimInstance;
 	
-#pragma region Climb Trace BP Variables 
+#pragma region Climb Core BP Variables 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float CapsuleTraceRadius = 50.f;
 	
@@ -58,6 +63,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
 	float ClimbSlopeMinAngle = 45.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
+    TObjectPtr<UAnimMontage> IdleToClimbMontage;
 #pragma endregion
 
 #pragma region Climb Functions
@@ -72,7 +80,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	void SnapToSurfaces(float DeltaTime);
 #pragma endregion
 protected:
-	
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
@@ -81,6 +89,11 @@ protected:
 	virtual float GetMaxSpeed() const override;
 	virtual float GetMaxAcceleration() const;
 	bool ShouldIStopClimbing();
+
+	void PlayClimbMontage( UAnimMontage* Montage) const;
+
+	UFUNCTION()
+	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
