@@ -2,7 +2,6 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
-#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -21,7 +20,7 @@ TArray<FHitResult> UClimbingMovementComponent::CapsuleTraceMultiForObjects(const
 		ObjectTypes,
 		false,
 		TArray<AActor*>(),
-		bDrawDebugTypes ? EDrawDebugTrace::Persistent : EDrawDebugTrace::None,
+		bDrawDebugTypes ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
 		OutCapsuleTraceHitResult,
 		true
 		);
@@ -100,9 +99,10 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	 ClimbableSurfaceDetection();
 	 // process climbable surfaces
 	ProcessingClimbableSurfaces();
-	
+
+
 	 // if none return early
-	if (ShouldIStopClimbing())
+	if (ShouldIStopClimbing() || DetectFloorReached())
 	{
 		 ToggleClimbingState(false);
 	}
@@ -301,6 +301,27 @@ void UClimbingMovementComponent::PlayClimbMontage( UAnimMontage* Montage) const
 	if (!CharacterAnimInstance) return;
 	if (CharacterAnimInstance->IsAnyMontagePlaying()) return;
 	CharacterAnimInstance->Montage_Play(Montage);
+}
+
+bool UClimbingMovementComponent::DetectFloorReached()
+{
+	const FVector StartOffset = -UpdatedComponent->GetUpVector()*50.f +-UpdatedComponent->GetForwardVector()*20.f;
+	const FVector StartLocation = UpdatedComponent->GetComponentLocation()+StartOffset;
+	const FVector EndLocation = StartLocation+(-UpdatedComponent->GetUpVector()-UpdatedComponent->GetForwardVector()*20.f);
+	// when these are this much near it becomes a stationary check
+	TArray<FHitResult> PossibleFloorHits =  CapsuleTraceMultiForObjects(StartLocation,EndLocation,false);
+	if (PossibleFloorHits.IsEmpty())
+	{
+		return false;
+	}
+	for (const auto& PossibleFloorHit : PossibleFloorHits)
+	{
+		if (FVector::Parallel(PossibleFloorHit.ImpactNormal,FVector::UpVector) && GetUnRotatedClimbVelocity().Z<-10.f)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)

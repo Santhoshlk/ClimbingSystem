@@ -91,6 +91,7 @@ protected:
 	bool ShouldIStopClimbing();
 
 	void PlayClimbMontage( UAnimMontage* Montage) const;
+	bool DetectFloorReached();
 
 	UFUNCTION()
 	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);
