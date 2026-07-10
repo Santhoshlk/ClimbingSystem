@@ -52,6 +52,11 @@ protected:
 	bool bIsClimbing;
 	void UpdateIsClimbing();
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category= "Climb")
+	FVector UnrotatedVelocity;
+
+	void UpdateUnrotatedVelocity();
+
 	void UpdateIsFalling();
 };
 

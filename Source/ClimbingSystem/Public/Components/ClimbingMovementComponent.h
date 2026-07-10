@@ -102,5 +102,7 @@ public:
 
 	void PhysicsClimb(float deltaTime, int32 Iterations);
 
+	FVector GetUnRotatedClimbVelocity() const;
+
 	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return ClimbableSurfaceNormal;};
 };

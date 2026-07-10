@@ -30,7 +30,7 @@ void UMorrowBoneAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	UpdatebShouldIMove();
 	UpdateLocomotionDirection();
 	UpdateIsClimbing();
-	
+	UpdateUnrotatedVelocity();
 }
 
 void UMorrowBoneAnimInstance::UpdateGroundSpeed()
@@ -55,6 +55,10 @@ void UMorrowBoneAnimInstance::UpdatebShouldIMove()
 }
 
 
+void UMorrowBoneAnimInstance::UpdateUnrotatedVelocity()
+{
+	UnrotatedVelocity = ClimbingMovementComponent->GetUnRotatedClimbVelocity();
+}
 
 void UMorrowBoneAnimInstance::UpdateIsFalling()
 {

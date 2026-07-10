@@ -5,6 +5,7 @@
 #include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 TArray<FHitResult> UClimbingMovementComponent::CapsuleTraceMultiForObjects(const FVector& Start, const FVector& End,bool bDrawDebugTypes)
@@ -136,6 +137,13 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	}
 
 	SnapToSurfaces(deltaTime);
+}
+
+FVector UClimbingMovementComponent::GetUnRotatedClimbVelocity() const
+{
+	// unrotated climb velocity is velocity in the direction of the character
+	// we rotate the velocity which is given in the world direction axis to our direction to feed the blend spaces
+	return UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(),Velocity);
 }
 
 bool UClimbingMovementComponent::ClimbableSurfaceDetection()
