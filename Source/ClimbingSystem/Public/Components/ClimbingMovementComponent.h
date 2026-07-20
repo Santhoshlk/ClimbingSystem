@@ -70,7 +70,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 #pragma region Climb Functions
 	bool ClimbableSurfaceDetection();
-	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f);
+	bool EyeLevelSurfaceDetection(float TraceDistance,float TraceOffset = 0.f,bool DebugLines = false);
 
 	void ProcessingClimbableSurfaces();
 
@@ -92,6 +92,8 @@ protected:
 
 	void PlayClimbMontage( UAnimMontage* Montage) const;
 	bool DetectFloorReached();
+
+	bool DetectLedgeReached();
 
 	UFUNCTION()
 	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);

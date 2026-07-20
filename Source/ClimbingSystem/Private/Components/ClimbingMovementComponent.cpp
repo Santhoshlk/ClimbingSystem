@@ -2,6 +2,8 @@
 
 
 #include "Components/ClimbingMovementComponent.h"
+
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -38,7 +40,7 @@ FHitResult UClimbingMovementComponent::EyeLengthLineTraceSingle(const FVector& S
 		ObjectTypes,
 		false,
 		TArray<AActor*>(),
-		bDrawDebugTypes ? EDrawDebugTrace::Persistent : EDrawDebugTrace::None,
+		bDrawDebugTypes ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
 		OutHitResult,
 		true
 		);
@@ -102,16 +104,29 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 
 
 	 // if none return early
-	if (ShouldIStopClimbing() || DetectFloorReached())
+	if ( DetectFloorReached())
 	{
 		 ToggleClimbingState(false);
 	}
+	
+	
+	
+		// check for ledge
+		if (DetectLedgeReached())
+		{
+			Debug::PrintDebugMessage(TEXT("Ledge Surface has been reached"));
+		}
+		else
+		{
+			Debug::PrintDebugMessage(TEXT("Ledge Surface has  not been reached"));
+		}
+	
 
 	RestorePreAdditiveRootMotionVelocity();
 
 	if( !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
 	{
-;
+
 		CalcVelocity(deltaTime, 0.f, true, MaxBreakingDeceleration);
 	}
 
@@ -155,11 +170,11 @@ bool UClimbingMovementComponent::ClimbableSurfaceDetection()
 	
 }
 
-bool UClimbingMovementComponent::EyeLevelSurfaceDetection(float TraceDistance, float TraceOffset)
+bool UClimbingMovementComponent::EyeLevelSurfaceDetection(float TraceDistance, float TraceOffset,bool DebugLines)
 {
 	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +TraceOffset );
 	const FVector End  = Start+UpdatedComponent->GetForwardVector()*TraceDistance;
-	 LineTraceHitResult =  EyeLengthLineTraceSingle(Start,End,false);
+	 LineTraceHitResult =  EyeLengthLineTraceSingle(Start,End,DebugLines);
 	return LineTraceHitResult.bBlockingHit;
 }
 
@@ -286,7 +301,7 @@ bool UClimbingMovementComponent::ShouldIStopClimbing()
 	const float DotProductResult = FVector::DotProduct(ClimbableSurfaceNormal,FVector::UpVector);
 	const float DegreeAngle = FMath::RadiansToDegrees(FMath::Acos(DotProductResult));
 
-	
+	Debug::PrintDebugData(TEXT("The Dot Product Angle :"),DegreeAngle);
 	if (DegreeAngle<=ClimbSlopeMinAngle)
 	{
 		return true;
@@ -318,6 +333,36 @@ bool UClimbingMovementComponent::DetectFloorReached()
 	{
 		if (FVector::Parallel(PossibleFloorHit.ImpactNormal,FVector::UpVector) && GetUnRotatedClimbVelocity().Z<-10.f)
 		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UClimbingMovementComponent::DetectLedgeReached()
+{
+	// u want to do a line trace at the top of ur character head with an offset
+	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,30.f,true);
+	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +30.f );
+	const FVector EndOfTrace  = Start+UpdatedComponent->GetForwardVector()*150.f;
+	const FVector WalkEnd = EndOfTrace+ (-FVector::UpVector*100.f);
+	if (!SurfaceDetected)
+	{
+		FHitResult WalkableSurface;
+		UKismetSystemLibrary::LineTraceSingleForObjects(
+			this,
+			EndOfTrace,
+			WalkEnd,
+			ObjectTypes,
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::Persistent,
+			 WalkableSurface,
+			 true
+			);
+		if (WalkableSurface.bBlockingHit)
+		{
+			// if there is walkable surface then u can return true
 			return true;
 		}
 	}
