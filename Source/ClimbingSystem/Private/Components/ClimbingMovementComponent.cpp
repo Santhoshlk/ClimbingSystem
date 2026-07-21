@@ -108,19 +108,6 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	{
 		 ToggleClimbingState(false);
 	}
-	
-	
-	
-		// check for ledge
-		if (DetectLedgeReached())
-		{
-			Debug::PrintDebugMessage(TEXT("Ledge Surface has been reached"));
-		}
-		else
-		{
-			Debug::PrintDebugMessage(TEXT("Ledge Surface has  not been reached"));
-		}
-	
 
 	RestorePreAdditiveRootMotionVelocity();
 
@@ -152,6 +139,17 @@ void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 	}
 
 	SnapToSurfaces(deltaTime);
+
+		
+	// check for ledge
+	if (DetectLedgeReached())
+	{
+		//stop climbing
+		SetMovementMode(MOVE_Falling);
+		//now play the animation
+		PlayClimbMontage(ClimbToTopMontage);
+	}
+	
 }
 
 FVector UClimbingMovementComponent::GetUnRotatedClimbVelocity() const
@@ -285,6 +283,16 @@ float UClimbingMovementComponent::GetMaxSpeed() const
 	return Super::GetMaxSpeed();
 }
 
+FVector UClimbingMovementComponent::ConstrainAnimRootMotionVelocity(const FVector& RootMotionVelocity,
+	const FVector& CurrentVelocity) const
+{
+	if (IsFalling() && CharacterAnimInstance && CharacterAnimInstance->IsAnyMontagePlaying())
+	{
+		return RootMotionVelocity;
+	}
+	return Super::ConstrainAnimRootMotionVelocity(RootMotionVelocity, CurrentVelocity);
+}
+
 float UClimbingMovementComponent::GetMaxAcceleration() const
 {
 	if (AmIClimbing())
@@ -342,7 +350,7 @@ bool UClimbingMovementComponent::DetectFloorReached()
 bool UClimbingMovementComponent::DetectLedgeReached()
 {
 	// u want to do a line trace at the top of ur character head with an offset
-	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,30.f,true);
+	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,30.f);
 	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +30.f );
 	const FVector EndOfTrace  = Start+UpdatedComponent->GetForwardVector()*150.f;
 	const FVector WalkEnd = EndOfTrace+ (-FVector::UpVector*100.f);
@@ -356,7 +364,7 @@ bool UClimbingMovementComponent::DetectLedgeReached()
 			ObjectTypes,
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::Persistent,
+			EDrawDebugTrace::None,
 			 WalkableSurface,
 			 true
 			);
@@ -375,5 +383,9 @@ void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool
 	{
 		// once this montage has ende u change the state
 		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+	}
+	if (Montage == ClimbToTopMontage)
+	{
+		SetMovementMode(MOVE_Walking);
 	}
 }

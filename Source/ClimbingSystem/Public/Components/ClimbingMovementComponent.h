@@ -66,6 +66,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
     TObjectPtr<UAnimMontage> IdleToClimbMontage;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> ClimbToTopMontage;
 #pragma endregion
 
 #pragma region Climb Functions
@@ -87,6 +90,7 @@ protected:
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 
 	virtual float GetMaxSpeed() const override;
+	virtual FVector ConstrainAnimRootMotionVelocity(const FVector& RootMotionVelocity, const FVector& CurrentVelocity) const override;
 	virtual float GetMaxAcceleration() const;
 	bool ShouldIStopClimbing();
 
