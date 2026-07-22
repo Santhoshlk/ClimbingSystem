@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/ClimbingMovementComponent.h"
 
 AClimbingSystemCharacter::AClimbingSystemCharacter(const FObjectInitializer& ObjectInitializer)
@@ -130,7 +131,7 @@ void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
 void AClimbingSystemCharacter::OnClimbStarted(const FInputActionValue& Value)
 {
 	if (!ClimbingMovementComponent) return;
-
+  
 	
 	if (ClimbingMovementComponent->AmIClimbing())
 	{

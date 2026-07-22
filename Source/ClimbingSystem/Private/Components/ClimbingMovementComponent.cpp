@@ -72,15 +72,13 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 		if (IsClimbingPossible())
 		{
 			
-		  
 			// pLay the Montage to start Climb
 			PlayClimbMontage(IdleToClimbMontage);
 		}
-		else
-		{
-			// temporary
-			SetMovementMode(MOVE_Walking);
-		}
+       if (CanIClimbDown())
+       {
+	       PlayClimbMontage(ClimbDownMontage);
+       }
 	}
 	else
 	{
@@ -347,6 +345,33 @@ bool UClimbingMovementComponent::DetectFloorReached()
 	return false;
 }
 
+bool UClimbingMovementComponent::CanIClimbDown()
+{
+	if (IsFalling()) return false;
+	// first u do a line trace to get the ground is present or not
+	FHitResult GroundHit;
+	const FVector Start = UpdatedComponent->GetComponentLocation()+ UpdatedComponent->GetForwardVector()*50.f;
+	const FVector End = Start + -(UpdatedComponent->GetUpVector()*ClimbDownMinHeight);
+	UKismetSystemLibrary::LineTraceSingleForObjects(this,
+     Start,
+     End,
+     ObjectTypes,
+     false,
+     TArray<AActor*>(),
+     EDrawDebugTrace::ForOneFrame,
+     GroundHit,
+     true
+	);
+	
+	if (!GroundHit.bBlockingHit && MovementMode == MOVE_Walking)
+	{
+		// no ground and the trace shows that the character is at a good height
+		// walking already ensures that there is floor
+		return true;
+	}
+	return false;
+}
+
 bool UClimbingMovementComponent::DetectLedgeReached()
 {
 	// u want to do a line trace at the top of ur character head with an offset
@@ -387,5 +412,9 @@ void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool
 	if (Montage == ClimbToTopMontage)
 	{
 		SetMovementMode(MOVE_Walking);
+	}
+	if (Montage == ClimbDownMontage)
+	{
+		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
 	}
 }

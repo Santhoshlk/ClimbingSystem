@@ -69,6 +69,12 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> ClimbToTopMontage;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	float ClimbDownMinHeight = 150.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> ClimbDownMontage;
 #pragma endregion
 
 #pragma region Climb Functions
@@ -96,7 +102,7 @@ protected:
 
 	void PlayClimbMontage( UAnimMontage* Montage) const;
 	bool DetectFloorReached();
-
+  
 	bool DetectLedgeReached();
 
 	UFUNCTION()
@@ -104,7 +110,7 @@ protected:
 public:
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
-
+	bool CanIClimbDown();
 	void ToggleClimbingState(bool bCanClimb);
 
 	void PhysicsClimb(float deltaTime, int32 Iterations);
