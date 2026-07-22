@@ -375,7 +375,7 @@ bool UClimbingMovementComponent::CanIClimbDown()
 bool UClimbingMovementComponent::DetectLedgeReached()
 {
 	// u want to do a line trace at the top of ur character head with an offset
-	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,30.f);
+	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,5.f);
 	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +30.f );
 	const FVector EndOfTrace  = Start+UpdatedComponent->GetForwardVector()*150.f;
 	const FVector WalkEnd = EndOfTrace+ (-FVector::UpVector*100.f);
@@ -415,6 +415,12 @@ void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool
 	}
 	if (Montage == ClimbDownMontage)
 	{
+		StopMovementImmediately();
+		if (!ClimbableSurfaceDetection())
+		{
+			SetMovementMode(MOVE_Falling);
+		}
 		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+		ToggleClimbingState(true);
 	}
 }
