@@ -74,6 +74,12 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	float ClimbDownMinHeight = 150.f;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	float ClimbDownTraceOffset = 50.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	float WalkStartTraceOffset = 30.f;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> ClimbDownMontage;
 #pragma endregion
 

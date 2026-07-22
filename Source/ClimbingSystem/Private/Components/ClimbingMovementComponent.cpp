@@ -350,7 +350,7 @@ bool UClimbingMovementComponent::CanIClimbDown()
 	if (IsFalling()) return false;
 	// first u do a line trace to get the ground is present or not
 	FHitResult GroundHit;
-	const FVector Start = UpdatedComponent->GetComponentLocation()+ UpdatedComponent->GetForwardVector()*50.f;
+	const FVector Start = UpdatedComponent->GetComponentLocation()+ UpdatedComponent->GetForwardVector()*ClimbDownTraceOffset;
 	const FVector End = Start + -(UpdatedComponent->GetUpVector()*ClimbDownMinHeight);
 	UKismetSystemLibrary::LineTraceSingleForObjects(this,
      Start,
@@ -362,11 +362,14 @@ bool UClimbingMovementComponent::CanIClimbDown()
      GroundHit,
      true
 	);
-	
-	if (!GroundHit.bBlockingHit && MovementMode == MOVE_Walking)
+
+	const FVector WalkStart =  UpdatedComponent->GetComponentLocation()+ UpdatedComponent->GetForwardVector()*WalkStartTraceOffset;
+	const FVector WalkEnd = WalkStart+-(UpdatedComponent->GetUpVector()*ClimbDownMinHeight);
+	FHitResult WalkHit = EyeLengthLineTraceSingle(WalkStart,WalkEnd,true);
+	if (!GroundHit.bBlockingHit && WalkHit.bBlockingHit)
 	{
 		// no ground and the trace shows that the character is at a good height
-		// walking already ensures that there is floor
+		// this ensure that there is a floor that hits
 		return true;
 	}
 	return false;
@@ -375,7 +378,7 @@ bool UClimbingMovementComponent::CanIClimbDown()
 bool UClimbingMovementComponent::DetectLedgeReached()
 {
 	// u want to do a line trace at the top of ur character head with an offset
-	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,5.f);
+	bool SurfaceDetected = EyeLevelSurfaceDetection(150.f,3.f);
 	const FVector Start = UpdatedComponent->GetComponentLocation()+UpdatedComponent->GetForwardVector()+UpdatedComponent->GetUpVector()*(CharacterOwner->BaseEyeHeight +30.f );
 	const FVector EndOfTrace  = Start+UpdatedComponent->GetForwardVector()*150.f;
 	const FVector WalkEnd = EndOfTrace+ (-FVector::UpVector*100.f);
