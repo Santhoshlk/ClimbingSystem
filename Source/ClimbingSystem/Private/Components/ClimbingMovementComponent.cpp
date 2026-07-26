@@ -213,7 +213,7 @@ void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
 	const FVector ComponentToSurface = (ClimbableSurfaceNormal - UpdatedComponent->GetComponentLocation()).ProjectOnTo(UpdatedComponent->GetForwardVector());
 	const FVector SnapVector = (-ClimbableSurfaceNormal)*ComponentToSurface.Length();
 	UpdatedComponent->MoveComponent(
-    SnapVector*DeltaTime* MaxClimbSpeed,
+    SnapVector*DeltaTime*MaxClimbSpeed,
     UpdatedComponent->GetComponentQuat(),
     true
 	);
