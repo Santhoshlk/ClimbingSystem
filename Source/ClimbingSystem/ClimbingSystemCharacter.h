@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "ClimbingSystemCharacter.generated.h"
 
+class UMotionWarpingComponent;
 class UClimbingMovementComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Components")
 	TObjectPtr<UClimbingMovementComponent> ClimbingMovementComponent;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category= "Components")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
  #pragma endregion 
 
 	

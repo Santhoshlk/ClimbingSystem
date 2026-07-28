@@ -19,7 +19,8 @@ public class ClimbingSystem : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-			"AnimGraphRuntime"
+			"AnimGraphRuntime",
+			"MotionWarping"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
