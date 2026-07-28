@@ -40,7 +40,7 @@ FHitResult UClimbingMovementComponent::EyeLengthLineTraceSingle(const FVector& S
 		ObjectTypes,
 		false,
 		TArray<AActor*>(),
-		bDrawDebugTypes ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
+		bDrawDebugTypes ? EDrawDebugTrace::Persistent : EDrawDebugTrace::None,
 		OutHitResult,
 		true
 		);
@@ -71,13 +71,16 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	{
 		if (IsClimbingPossible())
 		{
-			
 			// pLay the Montage to start Climb
 			PlayClimbMontage(IdleToClimbMontage);
 		}
        if (CanIClimbDown())
        {
 	       PlayClimbMontage(ClimbDownMontage);
+       }
+       else
+       {
+	       DoVaulting();
        }
 	}
 	else
@@ -403,6 +406,58 @@ bool UClimbingMovementComponent::DetectLedgeReached()
 		}
 	}
 	return false;
+}
+
+bool  UClimbingMovementComponent::CanIDoVaulting( FVector& StartingHit, FVector& EndingHit)
+{
+	if (IsFalling()) return false;
+	
+	const FVector ComponentForward = UpdatedComponent->GetForwardVector();
+	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
+	const FVector ComponentUpVector = UpdatedComponent->GetUpVector();
+	const FVector ComponentDownVector = -UpdatedComponent->GetUpVector();
+
+	for (int32 i =0;i<5;i++)
+	{
+		const FVector Start = ComponentLocation + ComponentUpVector*100.f+ComponentForward*100*(i+1);
+		const FVector End = Start + ComponentDownVector*100*(i+1);
+
+		FHitResult HitResult =  EyeLengthLineTraceSingle(Start,End,true);
+		if (i==0 && HitResult.bBlockingHit)
+		{
+			StartingHit = HitResult.ImpactPoint;
+		}
+		if (i==0 && !HitResult.bBlockingHit)
+		{
+			StartingHit = FVector::ZeroVector;
+		}
+		if (i==4 && HitResult.bBlockingHit)
+		{
+			EndingHit = HitResult.ImpactPoint;
+		}if (i==4 && !HitResult.bBlockingHit)
+		{
+			EndingHit = FVector::ZeroVector;
+		}
+	}
+	if (StartingHit!=FVector::ZeroVector && EndingHit!=FVector::ZeroVector)
+	{
+		return true;
+	}
+	return false;
+}
+
+void UClimbingMovementComponent::DoVaulting()
+{
+	FVector StartingLocation;
+	FVector EndingLocation;
+	if (CanIDoVaulting(StartingLocation,EndingLocation))
+	{
+		Debug::PrintDebugMessage(TEXT("I am able to do vaulting"));
+	}
+	else
+	{
+		Debug::PrintDebugMessage(TEXT("I am not able to do vaulting"));
+	}
 }
 
 void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)

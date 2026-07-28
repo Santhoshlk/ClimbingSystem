@@ -111,6 +111,9 @@ protected:
   
 	bool DetectLedgeReached();
 
+	bool CanIDoVaulting( FVector& StartingHit, FVector& EndingHit);
+	void DoVaulting();
+
 	UFUNCTION()
 	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);
 public:
