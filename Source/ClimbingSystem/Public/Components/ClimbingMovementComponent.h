@@ -11,6 +11,7 @@
  */
 // old definition of enum
 
+class UMotionWarpingComponent;
 class UAnimInstance;
 class UAnimMontage;
 UENUM(BlueprintType)
@@ -42,6 +43,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	FVector ClimbableSurfaceNormal = FVector::ZeroVector;
 	UPROPERTY()
 	TObjectPtr<UAnimInstance> CharacterAnimInstance;
+
+	UPROPERTY()
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
 #pragma region Climb Core BP Variables 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true") )
@@ -81,6 +85,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> ClimbDownMontage;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> VaultMontage;
 #pragma endregion
 
 #pragma region Climb Functions
@@ -114,6 +121,7 @@ protected:
 	bool CanIDoVaulting( FVector& StartingHit, FVector& EndingHit);
 	void DoVaulting();
 
+	void UpdateMotionWarpTarget(const FName& WarpTarget,const FVector& TargetLocation ) ;
 	UFUNCTION()
 	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);
 public:

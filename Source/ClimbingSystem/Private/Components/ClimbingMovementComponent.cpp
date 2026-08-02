@@ -3,7 +3,9 @@
 
 #include "Components/ClimbingMovementComponent.h"
 
+#include "ClimbingSystemCharacter.h"
 #include "ClimbingSystemDebugHelper.h"
+#include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -232,7 +234,10 @@ void UClimbingMovementComponent::BeginPlay()
 		CharacterAnimInstance->OnMontageEnded.AddDynamic(this,&UClimbingMovementComponent::OnClimbMontageEnded);
 		CharacterAnimInstance->OnMontageBlendingOut.AddDynamic(this,&UClimbingMovementComponent::OnClimbMontageEnded);
 	}
-	
+	if (AClimbingSystemCharacter*MorrowBoneCharacter =  Cast<AClimbingSystemCharacter>(CharacterOwner))
+	{
+		this->MotionWarpingComponent = MorrowBoneCharacter->GetMotionWarpingComponent();
+	}
 }
 
 void UClimbingMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
@@ -422,7 +427,7 @@ bool  UClimbingMovementComponent::CanIDoVaulting( FVector& StartingHit, FVector&
 		const FVector Start = ComponentLocation + ComponentUpVector*100.f+ComponentForward*100*(i+1);
 		const FVector End = Start + ComponentDownVector*100*(i+1);
 
-		FHitResult HitResult =  EyeLengthLineTraceSingle(Start,End,true);
+		FHitResult HitResult =  EyeLengthLineTraceSingle(Start,End,false);
 		if (i==0 && HitResult.bBlockingHit)
 		{
 			StartingHit = HitResult.ImpactPoint;
@@ -452,12 +457,20 @@ void UClimbingMovementComponent::DoVaulting()
 	FVector EndingLocation;
 	if (CanIDoVaulting(StartingLocation,EndingLocation))
 	{
-		Debug::PrintDebugMessage(TEXT("I am able to do vaulting"));
+		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
+		PlayClimbMontage(VaultMontage);
+		UpdateMotionWarpTarget(FName("VaultStartPosition"),StartingLocation);
+		UpdateMotionWarpTarget(FName("VaultEndPosition"),EndingLocation);
 	}
 	else
 	{
-		Debug::PrintDebugMessage(TEXT("I am not able to do vaulting"));
+		
 	}
+}
+
+void UClimbingMovementComponent::UpdateMotionWarpTarget(const FName& WarpTarget, const FVector& TargetLocation)
+{
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation(WarpTarget,TargetLocation);
 }
 
 void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -480,5 +493,9 @@ void UClimbingMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool
 		}
 		SetMovementMode(MOVE_Custom,ECustomMovementMode::MOVE_Climb);
 		ToggleClimbingState(true);
+	}
+	if (Montage == VaultMontage)
+	{
+		SetMovementMode(MOVE_Walking);
 	}
 }

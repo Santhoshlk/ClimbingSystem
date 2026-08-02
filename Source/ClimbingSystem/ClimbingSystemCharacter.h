@@ -119,5 +119,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	FORCEINLINE UClimbingMovementComponent* GetClimbingMovementComponent() const { return ClimbingMovementComponent;}
+	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent;}
 };
 
