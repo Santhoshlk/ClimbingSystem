@@ -74,6 +74,8 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		//climbing
 		EnhancedInputComponent->BindAction(ToggleClimbAction,ETriggerEvent::Started,this,&AClimbingSystemCharacter::OnClimbStarted);
+		EnhancedInputComponent->BindAction(HopClimbAction,ETriggerEvent::Triggered,this,&AClimbingSystemCharacter::HopClimbing);
+		
 	}
 	else
 	{
@@ -127,13 +129,35 @@ void AClimbingSystemCharacter::MoveClimbing(const FInputActionValue& Value)
 
 void AClimbingSystemCharacter::OnClimbEntered()
 {
-	Debug::PrintDebugMessage(TEXT("Entered The Climb State"));
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			checkf(Subsystem,TEXT("Subsystem should be always valid"));
+		
+			Subsystem->AddMappingContext(ClimbingInputMappingContext,2);
+		}
+	}
 	
 }
 
 void AClimbingSystemCharacter::OnClimbExited()
 {
-	Debug::PrintDebugMessage(TEXT("Exited The Climb State"));
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			checkf(Subsystem,TEXT("Subsystem should be always valid"));
+		
+			Subsystem->RemoveMappingContext(ClimbingInputMappingContext);
+		}
+	}
+	
+}
+
+void AClimbingSystemCharacter::HopClimbing(const FInputActionValue& Value)
+{
+	Debug::PrintDebugMessage(TEXT("Hop Climbing"));
 }
 
 

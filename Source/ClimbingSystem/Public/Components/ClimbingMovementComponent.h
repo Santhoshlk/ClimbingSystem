@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ClimbingMovementComponent.generated.h"
 
+class UInputMappingContext;
 DECLARE_DELEGATE(FOnClimbEnteredDelegate)
 DECLARE_DELEGATE(FOnClimbExitedDelegate)
 
@@ -91,6 +92,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> VaultMontage;
+	
 #pragma endregion
 
 #pragma region Climb Functions

@@ -8,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "ClimbingSystemCharacter.generated.h"
 
+class UInputMappingContext;
 class UMotionWarpingComponent;
 class UClimbingMovementComponent;
 class USpringArmComponent;
@@ -67,6 +68,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
    TObjectPtr<UInputAction> ToggleClimbAction;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category= "Input")
+	TObjectPtr<UInputMappingContext> ClimbingInputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> HopClimbAction;
 public:
 
 	/** Constructor */
@@ -94,7 +101,8 @@ private:
 
 	void OnClimbEntered();
 	void OnClimbExited();
-	
+
+	void HopClimbing(const FInputActionValue& Value);
 public:
 
 	/** Handles move inputs from either controls or UI interfaces */
