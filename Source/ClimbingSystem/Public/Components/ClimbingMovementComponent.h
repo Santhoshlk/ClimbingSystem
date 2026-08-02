@@ -6,6 +6,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ClimbingMovementComponent.generated.h"
 
+DECLARE_DELEGATE(FOnClimbEnteredDelegate)
+DECLARE_DELEGATE(FOnClimbExitedDelegate)
+
 /**
  * 
  */
@@ -125,6 +128,9 @@ protected:
 	UFUNCTION()
 	virtual void OnClimbMontageEnded( UAnimMontage* Montage, bool bInterrupted);
 public:
+
+	FOnClimbEnteredDelegate OnClimbEnteredDelegate;
+	FOnClimbExitedDelegate OnClimbExitedDelegate;
 	bool AmIClimbing() const;
 	bool IsClimbingPossible();
 	bool CanIClimbDown();

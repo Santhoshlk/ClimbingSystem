@@ -255,6 +255,7 @@ void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMov
 	    bOrientRotationToMovement = false;
     	
     	CharacterOwner->GetCapsuleComponent()->SetCapsuleHalfHeight(48.f);
+    	OnClimbEnteredDelegate.ExecuteIfBound();
     }
 	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == ECustomMovementMode::MOVE_Climb)
 	{
@@ -265,7 +266,8 @@ void UClimbingMovementComponent::OnMovementModeChanged(EMovementMode PreviousMov
 		const FRotator DirtyRotation = UpdatedComponent->GetComponentRotation();
 		const FRotator CleanRotation = FRotator(0.f,DirtyRotation.Yaw,0.f);
 		UpdatedComponent->SetRelativeRotation(CleanRotation);
-		StopMovementImmediately();	
+		StopMovementImmediately();
+		OnClimbExitedDelegate.ExecuteIfBound();
 	}
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 }

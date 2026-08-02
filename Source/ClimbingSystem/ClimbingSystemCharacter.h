@@ -91,6 +91,9 @@ private:
 	
     void MoveGround(const FInputActionValue & Value);
 	void MoveClimbing(const FInputActionValue& Value);
+
+	void OnClimbEntered();
+	void OnClimbExited();
 	
 public:
 

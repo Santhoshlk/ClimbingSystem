@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
+#include "ClimbingSystemDebugHelper.h"
 #include "Components/ClimbingMovementComponent.h"
 #include "MotionWarpingComponent.h"
 
@@ -83,6 +84,11 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 void AClimbingSystemCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (ClimbingMovementComponent)
+	{
+		ClimbingMovementComponent->OnClimbEnteredDelegate.BindUObject(this,&AClimbingSystemCharacter::OnClimbEntered);
+		ClimbingMovementComponent->OnClimbExitedDelegate.BindUObject(this,&AClimbingSystemCharacter::OnClimbExited);
+	}
 	
 }
 
@@ -119,6 +125,16 @@ void AClimbingSystemCharacter::MoveClimbing(const FInputActionValue& Value)
 	AddMovementInput(RightVector,MovementInput.X);
 }
 
+void AClimbingSystemCharacter::OnClimbEntered()
+{
+	Debug::PrintDebugMessage(TEXT("Entered The Climb State"));
+	
+}
+
+void AClimbingSystemCharacter::OnClimbExited()
+{
+	Debug::PrintDebugMessage(TEXT("Exited The Climb State"));
+}
 
 
 void AClimbingSystemCharacter::Look(const FInputActionValue& Value)
