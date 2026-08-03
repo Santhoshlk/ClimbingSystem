@@ -231,23 +231,44 @@ void UClimbingMovementComponent::Hopping()
 {
 	FVector HopLocation;
 	FVector LastMovementInputVector;
-	if (CouldIHop(HopLocation,LastMovementInputVector))
+	if (!CouldIHop(HopLocation,LastMovementInputVector))
 	{
-		Debug::PrintDebugMessage(LastMovementInputVector.ToString());
+	   return;
+	}
+	
+FVector CurrDirection = UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(),LastMovementInputVector);
+	CurrDirection = CurrDirection.GetSafeNormal();
+	float UpDown =  FVector::DotProduct(CurrDirection,FVector::UpVector);
+	float RightLeft =  FVector::DotProduct(CurrDirection,FVector::RightVector);
+
+	if (UpDown >=0.9f)
+	{
+		Debug::PrintDebugMessage(TEXT("Hop Up"),1);
+	}
+	 else if (UpDown <=-0.9f)
+	{
+		Debug::PrintDebugMessage(TEXT("Hop Down"),1);
+	}
+	else if (RightLeft >=0.9f)
+	{
+		Debug::PrintDebugMessage(TEXT("Hop Right"),1);
+	}
+	else if (RightLeft <=-0.9f)
+	{
+		Debug::PrintDebugMessage(TEXT("Hop left"),1);
 	}
 	else
 	{
-		Debug::PrintDebugMessage(TEXT("Hopping is not Possible"),1,FColor::Red);
+		Debug::PrintDebugMessage(TEXT("This Key Combination is not possible"),1);
 	}
-
 }
 
 bool UClimbingMovementComponent::CouldIHop( FVector& HitLocation ,FVector& LastMovementInputVector)
 {
 	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
-	FVector LastMomentInput =  UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(),GetLastInputVector());
-	LastMomentInput = LastMomentInput.GetSafeNormal();
-	LastMovementInputVector = LastMomentInput;
+	
+	LastMovementInputVector = GetLastInputVector();
+	const FVector LastMomentInput = LastMovementInputVector.GetSafeNormal();
 	const FVector StartLocation = ComponentLocation+(HopDistance+CharacterOwner->BaseEyeHeight)*LastMomentInput;
 	const FVector EndLocation = StartLocation + UpdatedComponent->GetForwardVector()*150.f;
 
