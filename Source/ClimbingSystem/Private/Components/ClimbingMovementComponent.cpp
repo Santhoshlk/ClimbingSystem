@@ -209,7 +209,7 @@ FQuat UClimbingMovementComponent::SetClimbRotation(float deltaTime) const
 	// next is u do interpolation
 	// u need to set a target quad make it toward the one  u need to rotate
 	 const FQuat TargetQuat = FRotationMatrix::MakeFromX(-ClimbableSurfaceNormal).ToQuat();
-	return FMath::QInterpTo(UpdatedComponent->GetComponentQuat(),TargetQuat,deltaTime,5.f);
+	return FMath::QInterpTo(UpdatedComponent->GetComponentQuat(),TargetQuat,deltaTime,10.f);
 }
 
 void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
@@ -230,10 +230,10 @@ void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
 void UClimbingMovementComponent::Hopping()
 {
 	FVector HopLocation;
-	if (CouldIHop(HopLocation))
+	FVector LastMovementInputVector;
+	if (CouldIHop(HopLocation,LastMovementInputVector))
 	{
-		Debug::PrintDebugMessage(TEXT("Hopping is Possible")+HopLocation.ToString(),1,FColor::Green);
-	
+		Debug::PrintDebugMessage(LastMovementInputVector.ToString());
 	}
 	else
 	{
@@ -242,11 +242,12 @@ void UClimbingMovementComponent::Hopping()
 
 }
 
-bool UClimbingMovementComponent::CouldIHop( FVector& HitLocation)
+bool UClimbingMovementComponent::CouldIHop( FVector& HitLocation ,FVector& LastMovementInputVector)
 {
 	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
 	FVector LastMomentInput =  UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(),GetLastInputVector());
 	LastMomentInput = LastMomentInput.GetSafeNormal();
+	LastMovementInputVector = LastMomentInput;
 	const FVector StartLocation = ComponentLocation+(HopDistance+CharacterOwner->BaseEyeHeight)*LastMomentInput;
 	const FVector EndLocation = StartLocation + UpdatedComponent->GetForwardVector()*150.f;
 
@@ -398,7 +399,7 @@ bool UClimbingMovementComponent::CanIClimbDown()
      ObjectTypes,
      false,
      TArray<AActor*>(),
-     EDrawDebugTrace::ForOneFrame,
+     EDrawDebugTrace::None,
      GroundHit,
      true
 	);

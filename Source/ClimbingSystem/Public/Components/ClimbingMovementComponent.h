@@ -109,7 +109,7 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 	// this is a function that needs tick
 	void SnapToSurfaces(float DeltaTime);
 
-	bool CouldIHop(FVector& HitLocation);
+	bool CouldIHop(FVector& HitLocation ,FVector& LastMovementInputVector);
 #pragma endregion
 protected:
 	virtual void BeginPlay() override;
