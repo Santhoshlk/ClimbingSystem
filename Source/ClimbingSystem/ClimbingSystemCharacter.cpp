@@ -74,7 +74,7 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		//climbing
 		EnhancedInputComponent->BindAction(ToggleClimbAction,ETriggerEvent::Started,this,&AClimbingSystemCharacter::OnClimbStarted);
-		EnhancedInputComponent->BindAction(HopClimbAction,ETriggerEvent::Triggered,this,&AClimbingSystemCharacter::HopClimbing);
+		EnhancedInputComponent->BindAction(HopClimbAction,ETriggerEvent::Started ,this,&AClimbingSystemCharacter::HopClimbing);
 		
 	}
 	else
@@ -157,7 +157,12 @@ void AClimbingSystemCharacter::OnClimbExited()
 
 void AClimbingSystemCharacter::HopClimbing(const FInputActionValue& Value)
 {
-	Debug::PrintDebugMessage(TEXT("Hop Climbing"));
+	if (!ClimbingMovementComponent)
+	{
+		return;
+	}
+	ClimbingMovementComponent->Hopping();
+	
 }
 
 

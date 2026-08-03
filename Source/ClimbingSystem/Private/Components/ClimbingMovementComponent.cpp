@@ -91,6 +91,8 @@ void UClimbingMovementComponent::ToggleClimbingState(bool bCanClimb)
 	}
 }
 
+
+
 void UClimbingMovementComponent::PhysicsClimb(float deltaTime, int32 Iterations)
 {
    // this function runs just as tick
@@ -223,6 +225,34 @@ void UClimbingMovementComponent::SnapToSurfaces(float DeltaTime)
     true
 	);
 	
+}
+
+void UClimbingMovementComponent::Hopping()
+{
+	FVector HopLocation;
+	if (CouldIHop(HopLocation))
+	{
+		Debug::PrintDebugMessage(TEXT("Hopping is Possible")+HopLocation.ToString(),1,FColor::Green);
+	
+	}
+	else
+	{
+		Debug::PrintDebugMessage(TEXT("Hopping is not Possible"),1,FColor::Red);
+	}
+
+}
+
+bool UClimbingMovementComponent::CouldIHop( FVector& HitLocation)
+{
+	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
+	FVector LastMomentInput =  UKismetMathLibrary::Quat_UnrotateVector(UpdatedComponent->GetComponentQuat(),GetLastInputVector());
+	LastMomentInput = LastMomentInput.GetSafeNormal();
+	const FVector StartLocation = ComponentLocation+(HopDistance+CharacterOwner->BaseEyeHeight)*LastMomentInput;
+	const FVector EndLocation = StartLocation + UpdatedComponent->GetForwardVector()*150.f;
+
+	FHitResult HitResult =  EyeLengthLineTraceSingle(StartLocation,EndLocation,true);
+	HitLocation = HitResult.ImpactPoint;
+	return HitResult.bBlockingHit;
 }
 
 void UClimbingMovementComponent::BeginPlay()

@@ -92,6 +92,9 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> VaultMontage;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(AllowPrivateAccess = "true"))
+	float HopDistance = 100.f;
 	
 #pragma endregion
 
@@ -105,6 +108,8 @@ class CLIMBINGSYSTEM_API UClimbingMovementComponent : public UCharacterMovementC
 
 	// this is a function that needs tick
 	void SnapToSurfaces(float DeltaTime);
+
+	bool CouldIHop(FVector& HitLocation);
 #pragma endregion
 protected:
 	virtual void BeginPlay() override;
@@ -137,6 +142,8 @@ public:
 	bool IsClimbingPossible();
 	bool CanIClimbDown();
 	void ToggleClimbingState(bool bCanClimb);
+
+	void Hopping();
 
 	void PhysicsClimb(float deltaTime, int32 Iterations);
 
